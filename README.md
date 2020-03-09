@@ -15,7 +15,8 @@ export FF3_EXPORTER_PORT=8000
 export FF3_EXPORTER_SLEEP=30
 ```
 
-# Example Result (based on https://demo.firefly-iii.org)
+# Example Result 
+based on https://demo.firefly-iii.org
 
 ```
 $ curl localhost:8000
