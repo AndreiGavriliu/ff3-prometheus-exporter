@@ -1,6 +1,8 @@
 # ff3-prometheus-exporter
 Simple Firefly-III Prometheus exporter
 
+(Work in progress / untested changes)
+
 ## Usage
 
 ### Required
