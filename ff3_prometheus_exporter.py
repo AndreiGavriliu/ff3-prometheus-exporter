@@ -28,14 +28,14 @@ if (not 'FF3_EXPORTER_PORT' in os.environ) or (not os.environ['FF3_EXPORTER_PORT
     print('WARNING: Env FF3_EXPORTER_PORT not found or empty. Using default 8000')
     FF3_EXPORTER_PORT = 8000
 else:
-    FF3_EXPORTER_PORT = os.environ['FF3_EXPORTER_PORT']
+    FF3_EXPORTER_PORT = int(os.environ['FF3_EXPORTER_PORT'])
 
 # check and set sleep timer
 if (not 'FF3_EXPORTER_SLEEP' in os.environ) or (not os.environ['FF3_EXPORTER_SLEEP']):
     print('WARNING: Env FF3_EXPORTER_SLEEP not found or empty. Using default 30 seconds')
     FF3_EXPORTER_SLEEP = 30
 else:
-    FF3_EXPORTER_SLEEP = os.environ['FF3_EXPORTER_SLEEP']
+    FF3_EXPORTER_SLEEP = int(os.environ['FF3_EXPORTER_SLEEP'])
 
 CURRENT_DAY = datetime.today().strftime("%Y-%m-%d")
 CURRENT_MONTH_START = datetime.today().strftime("%Y-%m") + '-01'
