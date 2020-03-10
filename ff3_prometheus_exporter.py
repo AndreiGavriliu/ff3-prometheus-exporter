@@ -55,32 +55,30 @@ class CustomCollector():
         standard metrics collection function
         """
         # get transactions
-        transactions = ff3_transactions()
         transactions_counter = CounterMetricFamily(
             'transactions_count',
             'Total transaction count')
         transactions_counter.add_metric([
-            'transactions_count'], transactions[
+            'transactions_count'], ff3_transactions()[
                 "meta"][
                     "pagination"][
                         "total"])
         yield transactions_counter
 
         # get bills
-        bills = ff3_bills()
         bills_counter = CounterMetricFamily(
             'bills_count',
             'Total bills count')
         bills_counter.add_metric([
-            'bills_count'], bills[
+            'bills_count'], ff3_bills()[
                 "meta"][
                     "pagination"][
                         "total"])
         yield bills_counter
 
         # get accounts
-        accounts = ff3_accounts()
-        accounts = accounts['data']
+        # accounts = ff3_accounts()
+        # accounts = accounts['data']
 
         # get account balances
         account_balance_gauge = GaugeMetricFamily(
@@ -89,7 +87,7 @@ class CustomCollector():
             labels=[
                 'account_id',
                 'account_name'])
-        for account in accounts:
+        for account in ff3_accounts()['data']:
             if account['attributes']['type'] == 'asset':
                 account_balance_gauge.add_metric([
                     account['id'],
@@ -105,7 +103,7 @@ class CustomCollector():
             labels=[
                 'account_id',
                 'account_name'])
-        for account in accounts:
+        for account in ff3_accounts()['data']:
             if account['attributes']['type'] == 'asset':
                 accounts_transactions = ff3_accounts_transactions(
                     account=account['id'],
@@ -126,7 +124,7 @@ class CustomCollector():
             labels=[
                 'account_id',
                 'account_name'])
-        for account in accounts:
+        for account in ff3_accounts()['data']:
             if account['attributes']['type'] == 'asset':
                 ff3_accounts_transactions_daily = ff3_accounts_transactions(
                     account=account['id'],
@@ -141,8 +139,8 @@ class CustomCollector():
         yield account_transaction_today_counter
 
         # get piggybank target_amount
-        piggybanks = ff3_piggybanks()
-        piggybanks = piggybanks['data']
+        # piggybanks = ff3_piggybanks()
+        # piggybanks = piggybanks['data']
 
         # get piggybank target amount
         piggybanks_details_target_amount = CounterMetricFamily(
@@ -152,7 +150,7 @@ class CustomCollector():
                 'piggybank_id',
                 'piggybank_name'])
 
-        for piggybank in piggybanks:
+        for piggybank in ff3_piggybanks()['data']:
             ff3_piggybanks_details_target_amount = ff3_piggybanks_details(
                 piggybank_id=piggybank['id'])
             piggybanks_details_target_amount.add_metric([
@@ -171,7 +169,7 @@ class CustomCollector():
                 'piggybank_id',
                 'piggybank_name'])
 
-        for piggybank in piggybanks:
+        for piggybank in ff3_piggybanks()['data']:
             ff3_piggybanks_details_current_amount = ff3_piggybanks_details(
                 piggybank_id=piggybank['id'])
             piggybanks_details_current_amount.add_metric([
