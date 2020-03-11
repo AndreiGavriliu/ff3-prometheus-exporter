@@ -13,7 +13,7 @@ import os
 import sys
 from datetime import datetime
 import requests
-from prometheus_client import start_http_server, Counter, Info
+from prometheus_client import start_http_server, Gauge, Info
 
 # check and set installation BaseURL
 if (not 'FF3_EXPORTER_BASEURL' in os.environ) or (not os.environ['FF3_EXPORTER_BASEURL']):
@@ -43,31 +43,31 @@ else:
 
 # initialize metrics
 CLIENTS_METRICS = {
-    'ff3_piggybanks': Counter(
+    'ff3_piggybanks': Gauge(
         'ff3_piggybanks',
         'Total piggybanks count',
         ['baseurl']),
-    'ff3_piggybank_current_amount': Counter(
+    'ff3_piggybank_current_amount': Gauge(
         'ff3_piggybank_current_amount',
         'Piggybank current amount',
         ['baseurl', 'piggybank_id', 'piggybank_name']),
-    'ff3_piggybank_target_amount': Counter(
+    'ff3_piggybank_target_amount': Gauge(
         'ff3_piggybank_target_amount',
         'Piggybank target amount',
         ['baseurl', 'piggybank_id', 'piggybank_name']),
-    'ff3_accounts': Counter(
+    'ff3_accounts': Gauge(
         'ff3_accounts',
         'Total accounts count',
         ['baseurl']),
-    'ff3_transactions_by_account': Counter(
+    'ff3_transactions_by_account': Gauge(
         'ff3_transactions_by_account',
         'Total transactions by account',
         ['baseurl', 'account_id', 'account_name']),
-    'ff3_transactions': Counter(
+    'ff3_transactions': Gauge(
         'ff3_transactions',
         'Total transaction count',
         ['baseurl']),
-    'ff3_bills': Counter(
+    'ff3_bills': Gauge(
         'ff3_bills',
         'Total bills count', ['baseurl']),
     'ff3': Info(
