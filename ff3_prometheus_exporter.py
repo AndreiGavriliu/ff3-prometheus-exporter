@@ -176,23 +176,23 @@ def collect():
         'php_version': ff3()['data']['php_version'],
         'os': ff3()['data']['os']})
 
-    CLIENTS_METRICS['ff3_transactions'].labels(FF3_EXPORTER_BASEURL).inc(
+    CLIENTS_METRICS['ff3_transactions'].labels(FF3_EXPORTER_BASEURL).set(
         ff3_transactions()['meta']['pagination']['total'])
 
-    CLIENTS_METRICS['ff3_bills'].labels(FF3_EXPORTER_BASEURL).inc(
+    CLIENTS_METRICS['ff3_bills'].labels(FF3_EXPORTER_BASEURL).set(
         ff3_bills()['meta']['pagination']['total'])
 
-    CLIENTS_METRICS['ff3_accounts'].labels(FF3_EXPORTER_BASEURL).inc(
+    CLIENTS_METRICS['ff3_accounts'].labels(FF3_EXPORTER_BASEURL).set(
         ff3_accounts()['meta']['pagination']['total'])
 
-    CLIENTS_METRICS['ff3_piggybanks'].labels(FF3_EXPORTER_BASEURL).inc(
+    CLIENTS_METRICS['ff3_piggybanks'].labels(FF3_EXPORTER_BASEURL).set(
         ff3_piggybanks()['meta']['pagination']['total'])
 
     for account in ff3_accounts()['data']:
         CLIENTS_METRICS['ff3_transactions_by_account'].labels(
             FF3_EXPORTER_BASEURL,
             account['id'],
-            account['attributes']['name']).inc(
+            account['attributes']['name']).set(
                 ff3_transactions_by_account(
                     account=account['id'],
                     start='',
@@ -202,7 +202,7 @@ def collect():
         CLIENTS_METRICS['ff3_piggybank_target_amount'].labels(
             FF3_EXPORTER_BASEURL,
             piggybank['id'],
-            piggybank['attributes']['name']).inc(
+            piggybank['attributes']['name']).set(
                 ff3_piggybanks_details(
                     piggybank_id=piggybank['id'])['data']['attributes']['target_amount'])
 
@@ -210,7 +210,7 @@ def collect():
         CLIENTS_METRICS['ff3_piggybank_current_amount'].labels(
             FF3_EXPORTER_BASEURL,
             piggybank['id'],
-            piggybank['attributes']['name']).inc(
+            piggybank['attributes']['name']).set(
                 ff3_piggybanks_details(
                     piggybank_id=piggybank['id'])['data']['attributes']['current_amount'])
 
