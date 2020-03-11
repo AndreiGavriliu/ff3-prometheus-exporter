@@ -215,7 +215,7 @@ def collect():
                     piggybank_id=piggybank['id'])['data']['attributes']['current_amount'])
 
 if __name__ == '__main__':
-    start_http_server(8000, 'localhost')
+    start_http_server(FF3_EXPORTER_PORT)
     while True:
         collect()
         print('Checked API: {}'.format(datetime.now().strftime("%Y-%m-%d @ %H:%M:%S.%f")))
