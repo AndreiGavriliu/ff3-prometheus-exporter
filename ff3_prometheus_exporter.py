@@ -3,8 +3,9 @@
 
 """
 Prometheus exporter for Firefly-III
-Version: v0.2
-API Documentation: https://api-docs.firefly-iii.org
+Author
+Version:    v0.2
+API-Docs:   https://api-docs.firefly-iii.org
 """
 
 import time
@@ -14,6 +15,14 @@ import sys
 from datetime import datetime
 import requests
 from prometheus_client import start_http_server, Gauge, Info
+
+__author__ = "Andrei Gavriliu"
+__copyright__ = "Copyright 2020"
+__credits__ = ["Andrei Gavriliu"]
+__license__ = "GPL"
+__version__ = "0.2.1"
+__maintainer__ = "Andrei Gavriliu"
+__status__ = "Work in Progress"
 
 # check and set installation BaseURL
 if (not 'FF3_EXPORTER_BASEURL' in os.environ) or (not os.environ['FF3_EXPORTER_BASEURL']):
@@ -45,35 +54,66 @@ else:
 CLIENTS_METRICS = {
     'ff3_piggybanks': Gauge(
         'ff3_piggybanks',
-        'Total piggybanks count',
-        ['baseurl']),
+        'Total piggybanks count', [
+            'baseurl'
+        ]
+    ),
     'ff3_piggybank_current_amount': Gauge(
         'ff3_piggybank_current_amount',
-        'Piggybank current amount',
-        ['baseurl', 'piggybank_id', 'piggybank_name']),
+        'Piggybank current amount', [
+            'baseurl',
+            'piggybank_id',
+            'piggybank_name'
+        ]
+    ),
     'ff3_piggybank_target_amount': Gauge(
         'ff3_piggybank_target_amount',
-        'Piggybank target amount',
-        ['baseurl', 'piggybank_id', 'piggybank_name']),
+        'Piggybank target amount', [
+            'baseurl',
+            'piggybank_id',
+            'piggybank_name'
+        ]
+    ),
     'ff3_accounts': Gauge(
         'ff3_accounts',
-        'Total accounts count',
-        ['baseurl']),
+        'Total accounts count', [
+            'baseurl'
+        ]
+    ),
     'ff3_transactions_by_account': Gauge(
         'ff3_transactions_by_account',
-        'Total transactions by account',
-        ['baseurl', 'account_id', 'account_name']),
+        'Total transactions by account', [
+            'baseurl',
+            'account_id',
+            'account_name'
+        ]
+    ),
+    'ff3_balance_by_account': Gauge(
+        'ff3_balance_by_account',
+        'Balance by account', [
+            'baseurl',
+            'account_id',
+            'account_name'
+        ]
+    ),
     'ff3_transactions': Gauge(
         'ff3_transactions',
-        'Total transaction count',
-        ['baseurl']),
+        'Total transaction count', [
+            'baseurl'
+        ]
+    ),
     'ff3_bills': Gauge(
         'ff3_bills',
-        'Total bills count', ['baseurl']),
+        'Total bills count', [
+            'baseurl'
+        ]
+    ),
     'ff3': Info(
         'ff3',
-        'Details about your Firefly-III deployment',
-        ['baseurl'])
+        'Details about your Firefly-III deployment', [
+            'baseurl'
+        ]
+    )
 }
 
 def ff3():
@@ -150,9 +190,23 @@ def ff3_accounts():
     except json.decoder.JSONDecodeError:
         sys.exit('ff3_accounts(): Response is not JSON format')
 
+def ff3_accounts_details(account):
+    """
+    get account details from Firefly-III
+    """
+    ff3_accounts_details_response = requests.get(
+        '{}/api/v1/accounts/{}'.format(
+            FF3_EXPORTER_BASEURL,
+            account),
+        headers=json.loads(FF3_EXPORTER_TOKEN))
+    try:
+        return ff3_accounts_details_response.json()
+    except json.decoder.JSONDecodeError:
+        sys.exit('ff3_accounts_details(): Response is not JSON format')
+
 def ff3_transactions_by_account(account, start='%7B%7D', end='%7B%7D'):
     """
-    get all account transactions
+    get all account transactions Firefly-III
     """
     ff3_transactions_by_account_response = requests.get(
         '{}/api/v1/accounts/{}/transactions?start={}&end={}'.format(
@@ -197,6 +251,14 @@ def collect():
                     account=account['id'],
                     start='',
                     end='')['meta']['pagination']['total'])
+
+    for account in ff3_accounts()['data']:
+        CLIENTS_METRICS['ff3_balance_by_account'].labels(
+            FF3_EXPORTER_BASEURL,
+            account['id'],
+            account['attributes']['name']).set(
+                ff3_accounts_details(
+                    account=account['id'])['data']['attributes']['current_balance'])
 
     for piggybank in ff3_piggybanks()['data']:
         CLIENTS_METRICS['ff3_piggybank_target_amount'].labels(
