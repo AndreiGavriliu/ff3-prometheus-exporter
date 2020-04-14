@@ -30,6 +30,20 @@ if (not 'FF3_EXPORTER_BASEURL' in os.environ) or (not os.environ['FF3_EXPORTER_B
 else:
     FF3_EXPORTER_BASEURL = os.environ['FF3_EXPORTER_BASEURL']
 
+# set ssl verify true or false
+if (not 'FF3_EXPORTER_VERIFY_SSL' in os.environ) or (not os.environ['FF3_EXPORTER_VERIFY_SSL']):
+    print('WARNING: Env FF3_EXPORTER_VERIFY_SSL not found or empty. Using default 30 seconds')
+    FF3_EXPORTER_VERIFY_SSL = True
+else:
+    if os.environ['FF3_EXPORTER_VERIFY_SSL'].lower() == "true":
+        FF3_EXPORTER_VERIFY_SSL = True
+    elif os.environ['FF3_EXPORTER_VERIFY_SSL'].lower() == "false":
+        FF3_EXPORTER_VERIFY_SSL = False
+        # suppress warnings
+        requests.packages.urllib3.disable_warnings()
+    else:
+        sys.exit('ERROR: Env FF3_EXPORTER_VERIFY_SSL can only be True or False')
+
 # check and set installation Token
 if (not 'FF3_EXPORTER_TOKEN' in os.environ) or (not os.environ['FF3_EXPORTER_TOKEN']):
     sys.exit('ERROR: Env FF3_EXPORTER_TOKEN not found or empty')
@@ -122,7 +136,8 @@ def ff3():
     """
     ff3_response = requests.get(
         '{}/api/v1/about'.format(FF3_EXPORTER_BASEURL),
-        headers=json.loads(FF3_EXPORTER_TOKEN))
+        headers=json.loads(FF3_EXPORTER_TOKEN),
+        verify=FF3_EXPORTER_VERIFY_SSL)
     try:
         return ff3_response.json()
     except json.decoder.JSONDecodeError:
@@ -134,7 +149,8 @@ def ff3_transactions():
     """
     ff3_transactions_response = requests.get(
         '{}/api/v1/transactions'.format(FF3_EXPORTER_BASEURL),
-        headers=json.loads(FF3_EXPORTER_TOKEN))
+        headers=json.loads(FF3_EXPORTER_TOKEN),
+        verify=FF3_EXPORTER_VERIFY_SSL)
     try:
         return ff3_transactions_response.json()
     except json.decoder.JSONDecodeError:
@@ -146,7 +162,8 @@ def ff3_bills():
     """
     ff3_bills_response = requests.get(
         '{}/api/v1/bills'.format(FF3_EXPORTER_BASEURL),
-        headers=json.loads(FF3_EXPORTER_TOKEN))
+        headers=json.loads(FF3_EXPORTER_TOKEN),
+        verify=FF3_EXPORTER_VERIFY_SSL)
     try:
         return ff3_bills_response.json()
     except json.decoder.JSONDecodeError:
@@ -158,7 +175,8 @@ def ff3_piggybanks():
     """
     ff3_piggybanks_response = requests.get(
         '{}/api/v1/piggy_banks'.format(FF3_EXPORTER_BASEURL),
-        headers=json.loads(FF3_EXPORTER_TOKEN))
+        headers=json.loads(FF3_EXPORTER_TOKEN),
+        verify=FF3_EXPORTER_VERIFY_SSL)
     try:
         return ff3_piggybanks_response.json()
     except json.decoder.JSONDecodeError:
@@ -172,7 +190,8 @@ def ff3_piggybanks_details(piggybank_id):
         '{}/api/v1/piggy_banks/{}'.format(
             FF3_EXPORTER_BASEURL,
             piggybank_id),
-        headers=json.loads(FF3_EXPORTER_TOKEN))
+        headers=json.loads(FF3_EXPORTER_TOKEN),
+        verify=FF3_EXPORTER_VERIFY_SSL)
     try:
         return ff3_piggybanks_details_response.json()
     except json.decoder.JSONDecodeError:
@@ -184,7 +203,8 @@ def ff3_accounts():
     """
     ff3_accounts_response = requests.get(
         '{}/api/v1/accounts?type=asset'.format(FF3_EXPORTER_BASEURL),
-        headers=json.loads(FF3_EXPORTER_TOKEN))
+        headers=json.loads(FF3_EXPORTER_TOKEN),
+        verify=FF3_EXPORTER_VERIFY_SSL)
     try:
         return ff3_accounts_response.json()
     except json.decoder.JSONDecodeError:
@@ -198,7 +218,8 @@ def ff3_accounts_details(account):
         '{}/api/v1/accounts/{}'.format(
             FF3_EXPORTER_BASEURL,
             account),
-        headers=json.loads(FF3_EXPORTER_TOKEN))
+        headers=json.loads(FF3_EXPORTER_TOKEN),
+        verify=FF3_EXPORTER_VERIFY_SSL)
     try:
         return ff3_accounts_details_response.json()
     except json.decoder.JSONDecodeError:
@@ -214,7 +235,8 @@ def ff3_transactions_by_account(account, start='%7B%7D', end='%7B%7D'):
             account,
             start,
             end),
-        headers=json.loads(FF3_EXPORTER_TOKEN))
+        headers=json.loads(FF3_EXPORTER_TOKEN),
+        verify=FF3_EXPORTER_VERIFY_SSL)
     try:
         return ff3_transactions_by_account_response.json()
     except json.decoder.JSONDecodeError:
