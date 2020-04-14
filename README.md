@@ -15,9 +15,10 @@ export FF3_EXPORTER_TOKEN="your-API-token"
 ```
 export FF3_EXPORTER_PORT=8000
 export FF3_EXPORTER_SLEEP=30
+export FF3_EXPORTER_VERIFY_SSL=False
 ```
 
-# Example Result 
+# Example Result
 based on https://demo.firefly-iii.org
 
 ```
