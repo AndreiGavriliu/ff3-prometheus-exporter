@@ -13,56 +13,71 @@ import json
 import os
 import sys
 from datetime import datetime
+import logging
 import requests
 from prometheus_client import start_http_server, Gauge, Info
 
-__author__ = "Andrei Gavriliu"
-__copyright__ = "Copyright 2020"
-__credits__ = ["Andrei Gavriliu"]
-__license__ = "GPL"
-__version__ = "0.2.1"
-__maintainer__ = "Andrei Gavriliu"
-__status__ = "Work in Progress"
+# check and set installation BaseURL
+if (not 'FF3_EXPORTER_LOGLEVEL' in os.environ) or (not os.environ['FF3_EXPORTER_LOGLEVEL']):
+    FF3_EXPORTER_LOGLEVEL = 'INFO'
+    logging.warning('Env FF3_EXPORTER_LOGLEVEL not found or empty. Using default Info')
+else:
+    if os.environ['FF3_EXPORTER_LOGLEVEL'].lower() == 'debug':
+        FF3_EXPORTER_LOGLEVEL = 'DEBUG'
+    if os.environ['FF3_EXPORTER_LOGLEVEL'].lower() == 'info':
+        FF3_EXPORTER_LOGLEVEL = 'INFO'
+    if os.environ['FF3_EXPORTER_LOGLEVEL'].lower() == 'error':
+        FF3_EXPORTER_LOGLEVEL = 'ERROR'
+
+# config logging
+logging.basicConfig(
+    level=FF3_EXPORTER_LOGLEVEL,
+    format='%(asctime)-15s %(levelname)s %(message)s')
 
 # check and set installation BaseURL
 if (not 'FF3_EXPORTER_BASEURL' in os.environ) or (not os.environ['FF3_EXPORTER_BASEURL']):
-    sys.exit('ERROR: Env FF3_EXPORTER_BASEURL not found or empty')
+    sys.exit(logging.error('Env FF3_EXPORTER_BASEURL not found or empty'))
 else:
     FF3_EXPORTER_BASEURL = os.environ['FF3_EXPORTER_BASEURL']
 
 # set ssl verify true or false
 if (not 'FF3_EXPORTER_VERIFY_SSL' in os.environ) or (not os.environ['FF3_EXPORTER_VERIFY_SSL']):
-    print('WARNING: Env FF3_EXPORTER_VERIFY_SSL not found or empty. Using default 30 seconds')
     FF3_EXPORTER_VERIFY_SSL = True
+    logging.warning('Env FF3_EXPORTER_VERIFY_SSL not found or empty. Using default True')
 else:
     if os.environ['FF3_EXPORTER_VERIFY_SSL'].lower() == "true":
         FF3_EXPORTER_VERIFY_SSL = True
+        logging.debug('Env FF3_EXPORTER_VERIFY_SSL set to True')
     elif os.environ['FF3_EXPORTER_VERIFY_SSL'].lower() == "false":
         FF3_EXPORTER_VERIFY_SSL = False
+        logging.debug('Env FF3_EXPORTER_VERIFY_SSL set to False')
         # suppress warnings
         requests.packages.urllib3.disable_warnings()
     else:
-        sys.exit('ERROR: Env FF3_EXPORTER_VERIFY_SSL can only be True or False')
+        sys.exit(logging.error('Env FF3_EXPORTER_VERIFY_SSL can only be True or False'))
 
 # check and set installation Token
 if (not 'FF3_EXPORTER_TOKEN' in os.environ) or (not os.environ['FF3_EXPORTER_TOKEN']):
-    sys.exit('ERROR: Env FF3_EXPORTER_TOKEN not found or empty')
+    sys.exit(logging.error('Env FF3_EXPORTER_TOKEN not found or empty'))
 else:
     FF3_EXPORTER_TOKEN = '{\"Authorization\": \"Bearer ' + os.environ['FF3_EXPORTER_TOKEN'] + '\"}'
+    logging.debug('Authorization Header: %s', FF3_EXPORTER_TOKEN)
 
 # check and set webserver port
 if (not 'FF3_EXPORTER_PORT' in os.environ) or (not os.environ['FF3_EXPORTER_PORT']):
-    print('WARNING: Env FF3_EXPORTER_PORT not found or empty. Using default 8000')
     FF3_EXPORTER_PORT = 8000
+    logging.warning('Env FF3_EXPORTER_PORT not found or empty. Using default 8000')
 else:
     FF3_EXPORTER_PORT = int(os.environ['FF3_EXPORTER_PORT'])
+    logging.debug('Env FF3_EXPORTER_PORT set to %s', FF3_EXPORTER_PORT)
 
 # check and set sleep timer
 if (not 'FF3_EXPORTER_SLEEP' in os.environ) or (not os.environ['FF3_EXPORTER_SLEEP']):
-    print('WARNING: Env FF3_EXPORTER_SLEEP not found or empty. Using default 30 seconds')
     FF3_EXPORTER_SLEEP = 30
+    logging.warning('Env FF3_EXPORTER_SLEEP not found or empty. Using default 30 seconds')
 else:
     FF3_EXPORTER_SLEEP = int(os.environ['FF3_EXPORTER_SLEEP'])
+    logging.debug('Env FF3_EXPORTER_SLEEP set to %s', FF3_EXPORTER_SLEEP)
 
 # initialize metrics
 CLIENTS_METRICS = {
@@ -134,6 +149,7 @@ def ff3():
     """
     Collect system information
     """
+    logging.debug('Collecting system information')
     ff3_response = requests.get(
         '{}/api/v1/about'.format(FF3_EXPORTER_BASEURL),
         headers=json.loads(FF3_EXPORTER_TOKEN),
@@ -141,12 +157,13 @@ def ff3():
     try:
         return ff3_response.json()
     except json.decoder.JSONDecodeError:
-        sys.exit('ff3(): Response is not JSON format')
+        sys.exit(logging.error('ff3(): Response is not JSON format'))
 
 def ff3_transactions():
     """
     get all transactions from Firefly-III
     """
+    logging.debug('Getting all transactions from Firefly-III')
     ff3_transactions_response = requests.get(
         '{}/api/v1/transactions'.format(FF3_EXPORTER_BASEURL),
         headers=json.loads(FF3_EXPORTER_TOKEN),
@@ -154,12 +171,13 @@ def ff3_transactions():
     try:
         return ff3_transactions_response.json()
     except json.decoder.JSONDecodeError:
-        sys.exit('ff3_transactions(): Response is not JSON format')
+        sys.exit(logging.error('ff3(): Response is not JSON format'))
 
 def ff3_bills():
     """
     get all bills from Firefly-III
     """
+    logging.debug('Getting all bills from Firefly-III')
     ff3_bills_response = requests.get(
         '{}/api/v1/bills'.format(FF3_EXPORTER_BASEURL),
         headers=json.loads(FF3_EXPORTER_TOKEN),
@@ -167,7 +185,7 @@ def ff3_bills():
     try:
         return ff3_bills_response.json()
     except json.decoder.JSONDecodeError:
-        sys.exit('ff3_bills(): Response is not JSON format')
+        sys.exit(logging.error('ff3(): Response is not JSON format'))
 
 def ff3_piggybanks():
     """
@@ -180,12 +198,13 @@ def ff3_piggybanks():
     try:
         return ff3_piggybanks_response.json()
     except json.decoder.JSONDecodeError:
-        sys.exit('ff3_piggybanks(): Response is not JSON format')
+        sys.exit(logging.error('ff3(): Response is not JSON format'))
 
 def ff3_piggybanks_details(piggybank_id):
     """
     get piggybank details from Firefly-III
     """
+    logging.debug('Getting piggybank details from Firefly-III')
     ff3_piggybanks_details_response = requests.get(
         '{}/api/v1/piggy_banks/{}'.format(
             FF3_EXPORTER_BASEURL,
@@ -195,12 +214,13 @@ def ff3_piggybanks_details(piggybank_id):
     try:
         return ff3_piggybanks_details_response.json()
     except json.decoder.JSONDecodeError:
-        sys.exit('ff3_piggybanks_details(): Response is not JSON format')
+        sys.exit(logging.error('ff3(): Response is not JSON format'))
 
 def ff3_accounts():
     """
     get all accounts from Firefly-III
     """
+    logging.debug('Getting all accounts from Firefly-III')
     ff3_accounts_response = requests.get(
         '{}/api/v1/accounts?type=asset'.format(FF3_EXPORTER_BASEURL),
         headers=json.loads(FF3_EXPORTER_TOKEN),
@@ -208,12 +228,13 @@ def ff3_accounts():
     try:
         return ff3_accounts_response.json()
     except json.decoder.JSONDecodeError:
-        sys.exit('ff3_accounts(): Response is not JSON format')
+        sys.exit(logging.error('ff3(): Response is not JSON format'))
 
 def ff3_accounts_details(account):
     """
     get account details from Firefly-III
     """
+    logging.debug('Getting account details from Firefly-III')
     ff3_accounts_details_response = requests.get(
         '{}/api/v1/accounts/{}'.format(
             FF3_EXPORTER_BASEURL,
@@ -223,12 +244,13 @@ def ff3_accounts_details(account):
     try:
         return ff3_accounts_details_response.json()
     except json.decoder.JSONDecodeError:
-        sys.exit('ff3_accounts_details(): Response is not JSON format')
+        sys.exit(logging.error('ff3(): Response is not JSON format'))
 
 def ff3_transactions_by_account(account, start='%7B%7D', end='%7B%7D'):
     """
     get all account transactions Firefly-III
     """
+    logging.debug('Getting all account transactions Firefly-III')
     ff3_transactions_by_account_response = requests.get(
         '{}/api/v1/accounts/{}/transactions?start={}&end={}'.format(
             FF3_EXPORTER_BASEURL,
@@ -240,7 +262,7 @@ def ff3_transactions_by_account(account, start='%7B%7D', end='%7B%7D'):
     try:
         return ff3_transactions_by_account_response.json()
     except json.decoder.JSONDecodeError:
-        sys.exit('ff3_transactions_by_account(): Response is not JSON format')
+        sys.exit(logging.error('ff3(): Response is not JSON format'))
 
 def collect():
     """
@@ -302,5 +324,5 @@ if __name__ == '__main__':
     start_http_server(FF3_EXPORTER_PORT)
     while True:
         collect()
-        print('Checked API: {}'.format(datetime.now().strftime("%Y-%m-%d @ %H:%M:%S.%f")))
+        logging.info('Fetched data')
         time.sleep(FF3_EXPORTER_SLEEP)
