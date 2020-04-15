@@ -1,12 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/local/bin/python3 -u
 # -*- coding: utf-8 -*-
-
-"""
-Prometheus exporter for Firefly-III
-Author
-Version:    v0.2
-API-Docs:   https://api-docs.firefly-iii.org
-"""
 
 import time
 import json
@@ -16,6 +9,11 @@ from datetime import datetime
 import logging
 import requests
 from prometheus_client import start_http_server, Gauge, Info
+
+# config logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)-15s %(levelname)s %(message)s')
 
 # check and set installation BaseURL
 if (not 'FF3_EXPORTER_LOGLEVEL' in os.environ) or (not os.environ['FF3_EXPORTER_LOGLEVEL']):
@@ -28,11 +26,9 @@ else:
         FF3_EXPORTER_LOGLEVEL = 'INFO'
     if os.environ['FF3_EXPORTER_LOGLEVEL'].lower() == 'error':
         FF3_EXPORTER_LOGLEVEL = 'ERROR'
-
-# config logging
-logging.basicConfig(
-    level=FF3_EXPORTER_LOGLEVEL,
-    format='%(asctime)-15s %(levelname)s %(message)s')
+    logging.basicConfig(
+        level=FF3_EXPORTER_LOGLEVEL,
+        format='%(asctime)-15s %(levelname)s %(message)s')
 
 # check and set installation BaseURL
 if (not 'FF3_EXPORTER_BASEURL' in os.environ) or (not os.environ['FF3_EXPORTER_BASEURL']):
