@@ -16,6 +16,7 @@ export FF3_EXPORTER_TOKEN="your-API-token"
 export FF3_EXPORTER_PORT=8000
 export FF3_EXPORTER_SLEEP=30
 export FF3_EXPORTER_VERIFY_SSL=False
+export FF3_EXPORTER_LOGLEVEL=info
 ```
 
 # Example Result
