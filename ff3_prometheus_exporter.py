@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3 -u
+#!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 
 import time
@@ -22,10 +22,13 @@ if (not 'FF3_EXPORTER_LOGLEVEL' in os.environ) or (not os.environ['FF3_EXPORTER_
 else:
     if os.environ['FF3_EXPORTER_LOGLEVEL'].lower() == 'debug':
         FF3_EXPORTER_LOGLEVEL = 'DEBUG'
+        logging.root.setLevel('DEBUG')
     if os.environ['FF3_EXPORTER_LOGLEVEL'].lower() == 'info':
         FF3_EXPORTER_LOGLEVEL = 'INFO'
+        logging.root.setLevel('INFO')
     if os.environ['FF3_EXPORTER_LOGLEVEL'].lower() == 'error':
         FF3_EXPORTER_LOGLEVEL = 'ERROR'
+        logging.root.setLevel('ERROR')
     logging.basicConfig(
         level=FF3_EXPORTER_LOGLEVEL,
         format='%(asctime)-15s %(levelname)s %(message)s')
