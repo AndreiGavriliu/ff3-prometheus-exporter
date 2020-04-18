@@ -124,6 +124,14 @@ CLIENTS_METRICS = {
             'account_name'
         ]
     ),
+    'ff3_transactions_by_categories': Gauge(
+        'ff3_transactions_by_categories',
+        'Transactions by account', [
+            'baseurl',
+            'account_id',
+            'account_name'
+        ]
+    ),
     'ff3_transactions': Gauge(
         'ff3_transactions',
         'Total transaction count', [
@@ -133,6 +141,12 @@ CLIENTS_METRICS = {
     'ff3_bills': Gauge(
         'ff3_bills',
         'Total bills count', [
+            'baseurl'
+        ]
+    ),
+    'ff3_categories': Gauge(
+        'ff3_categories',
+        'Total category count', [
             'baseurl'
         ]
     ),
@@ -263,6 +277,38 @@ def ff3_transactions_by_account(account, start='%7B%7D', end='%7B%7D'):
     except json.decoder.JSONDecodeError:
         sys.exit(logging.error('ff3(): Response is not JSON format'))
 
+def ff3_categories():
+    """
+    get all categories from Firefly-III
+    """
+    logging.debug('Getting all categories from Firefly-III')
+    ff3_categories_response = requests.get(
+        '{}/api/v1/categories'.format(FF3_EXPORTER_BASEURL),
+        headers=json.loads(FF3_EXPORTER_TOKEN),
+        verify=FF3_EXPORTER_VERIFY_SSL)
+    try:
+        return ff3_categories_response.json()
+    except json.decoder.JSONDecodeError:
+        sys.exit(logging.error('ff3(): Response is not JSON format'))
+
+def ff3_transactions_by_category(account, start='%7B%7D', end='%7B%7D'):
+    """
+    get all account transactions Firefly-III
+    """
+    logging.debug('Getting all account transactions Firefly-III')
+    ff3_transactions_by_category_response = requests.get(
+        '{}/api/v1/categories/{}/transactions?start={}&end={}'.format(
+            FF3_EXPORTER_BASEURL,
+            account,
+            start,
+            end),
+        headers=json.loads(FF3_EXPORTER_TOKEN),
+        verify=FF3_EXPORTER_VERIFY_SSL)
+    try:
+        return ff3_transactions_by_category_response.json()
+    except json.decoder.JSONDecodeError:
+        sys.exit(logging.error('ff3(): Response is not JSON format'))
+
 def collect():
     """
     Main function to export collected  metrics
@@ -285,6 +331,9 @@ def collect():
     CLIENTS_METRICS['ff3_piggybanks'].labels(FF3_EXPORTER_BASEURL).set(
         ff3_piggybanks()['meta']['pagination']['total'])
 
+    CLIENTS_METRICS['ff3_categories'].labels(FF3_EXPORTER_BASEURL).set(
+        ff3_categories()['meta']['pagination']['total'])
+
     for account in ff3_accounts()['data']:
         CLIENTS_METRICS['ff3_transactions_by_account'].labels(
             FF3_EXPORTER_BASEURL,
@@ -292,6 +341,16 @@ def collect():
             account['attributes']['name']).set(
                 ff3_transactions_by_account(
                     account=account['id'],
+                    start='',
+                    end='')['meta']['pagination']['total'])
+
+    for category in ff3_categories()['data']:
+        CLIENTS_METRICS['ff3_transactions_by_categories'].labels(
+            FF3_EXPORTER_BASEURL,
+            category['id'],
+            category['attributes']['name']).set(
+                ff3_transactions_by_category(
+                    account=category['id'],
                     start='',
                     end='')['meta']['pagination']['total'])
 
