@@ -19,6 +19,22 @@ export FF3_EXPORTER_VERIFY_SSL=False
 export FF3_EXPORTER_LOGLEVEL=info
 ```
 
+## Exported Metrics
+* [x] `ff3` Details about your Firefly-III deployment
+* [x] `ff3_accounts` (Total accounts count)
+* [x] `ff3_balance_by_account` Balance by account
+* [x] `ff3_transactions_by_account` (Total transactions by account)
+* [x] `ff3_piggybanks` Total piggybanks count
+* [x] `ff3_piggybank_current_amount` Piggybank current amount
+* [x] `ff3_piggybank_target_amount` Piggybank target amount
+* [x] `ff3_transactions` Total transaction count
+* [x] `ff3_bills` Total bills count
+* [ ] `ff3_transactions_by bills` Transactions by bills
+* [x] `ff3_categories` Total category count
+* [x] `ff3_transactions_by_categories` Transactions by categories
+* [ ] `ff3_budgets` Total category count
+* [ ] `ff3_transactions_by_budgets` Transactions by budgets
+
 # Example Result
 based on https://demo.firefly-iii.org
 
