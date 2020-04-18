@@ -124,12 +124,12 @@ CLIENTS_METRICS = {
             'account_name'
         ]
     ),
-    'ff3_transactions_by_categories': Gauge(
-        'ff3_transactions_by_categories',
-        'Transactions by account', [
+    'ff3_transactions_by_category': Gauge(
+        'ff3_transactions_by_category',
+        'Transactions by categories', [
             'baseurl',
-            'account_id',
-            'account_name'
+            'category_id',
+            'category_name'
         ]
     ),
     'ff3_transactions': Gauge(
@@ -291,7 +291,7 @@ def ff3_categories():
     except json.decoder.JSONDecodeError:
         sys.exit(logging.error('ff3(): Response is not JSON format'))
 
-def ff3_transactions_by_category(account, start='%7B%7D', end='%7B%7D'):
+def ff3_transactions_by_category(category, start='%7B%7D', end='%7B%7D'):
     """
     get all account transactions Firefly-III
     """
@@ -299,7 +299,7 @@ def ff3_transactions_by_category(account, start='%7B%7D', end='%7B%7D'):
     ff3_transactions_by_category_response = requests.get(
         '{}/api/v1/categories/{}/transactions?start={}&end={}'.format(
             FF3_EXPORTER_BASEURL,
-            account,
+            category,
             start,
             end),
         headers=json.loads(FF3_EXPORTER_TOKEN),
@@ -345,12 +345,12 @@ def collect():
                     end='')['meta']['pagination']['total'])
 
     for category in ff3_categories()['data']:
-        CLIENTS_METRICS['ff3_transactions_by_categories'].labels(
+        CLIENTS_METRICS['ff3_transactions_by_category'].labels(
             FF3_EXPORTER_BASEURL,
             category['id'],
             category['attributes']['name']).set(
                 ff3_transactions_by_category(
-                    account=category['id'],
+                    category=category['id'],
                     start='',
                     end='')['meta']['pagination']['total'])
 
